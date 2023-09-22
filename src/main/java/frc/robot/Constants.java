@@ -6,6 +6,10 @@ package frc.robot;
 
 import com.revrobotics.CANSparkMax.IdleMode;
 
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.util.Units;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -66,5 +70,51 @@ public final class Constants {
   
   public static final class NeoMotorConstants {
     public static final double kFreeSpeedRpm = 5676;
+  }
+
+  public static final class DriveConstants {
+    // Driving Parameters - Note that these are not the maximum capable speeds of
+    // the robot, rather the allowed maximum speeds
+    public static final double kMaxSpeedMetersPerSecond = 4.8;
+    public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
+
+    public static final double kDirectionSlewRate = 1.2; // radians per second
+    public static final double kMagnitudeSlewRate = 1.8; // percent per second (1 = 100%)
+    public static final double kRotationalSlewRate = 2.0; // percent per second (1 = 100%)
+
+    // Chassis configuration
+    public static final double kTrackWidth = Units.inchesToMeters(26.5);
+    // Distance between centers of right and left wheels on robot
+    public static final double kWheelBase = Units.inchesToMeters(26.5);
+    // Distance between front and back wheels on robot
+    public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
+        new Translation2d(kWheelBase / 2, kTrackWidth / 2),
+        new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
+        new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
+        new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
+
+    public static final int kLeftFrontRotorID = 0;
+    public static final int kLeftFrontThrottleID = 0;
+    public static final boolean kLeftFrontThrottleReversed = false;
+    public static final double kLeftFrontRotorOffsetngle = -Math.PI / 2;
+    
+    public static final int kLeftBackRotorID = 0;
+    public static final int kLeftBackThrottleID = 0;
+    public static final boolean kLeftBackThrottleReversed = false;
+    public static final double kLeftBackRotorOffsetngle = Math.PI;
+    
+    public static final int kRightFrontRotorID = 0;
+    public static final int kRightFrontThrottleID = 0;
+    public static final boolean kRightFrontThrottleReversed = false;
+    public static final double kRightFrontRotorOffsetngle = 0.0;
+    
+    public static final int kRightBackRotorID = 0;
+    public static final int kRightBackThrottleID = 0;
+    public static final boolean kRightBackThrottleReversed = false;
+    public static final double kRightBackRotorOffsetngle = Math.PI / 2;
+
+    public static final int kImuID = 0;
+
+    public static final boolean kImuReversed = false;
   }
 }
