@@ -133,11 +133,11 @@ public class SwerveModule {
    *
    * @param desiredState Desired state with speed and angle.
    */
-  public void setDesiredState(SwerveModuleState desiredState) {
+  public void setDesiredState(SwerveModuleState iDesiredState) {
     // Apply chassis angular offset to the desired state.
     SwerveModuleState correctedDesiredState = new SwerveModuleState();
-    correctedDesiredState.speedMetersPerSecond = desiredState.speedMetersPerSecond;
-    correctedDesiredState.angle = desiredState.angle.plus(Rotation2d.fromRadians(m_RotorOffsetAngle));
+    correctedDesiredState.speedMetersPerSecond = iDesiredState.speedMetersPerSecond;
+    correctedDesiredState.angle = iDesiredState.angle.plus(Rotation2d.fromRadians(m_RotorOffsetAngle));
 
     // Optimize the reference state to avoid spinning further than 90 degrees.
     SwerveModuleState optimizedDesiredState = SwerveModuleState.optimize(correctedDesiredState,
@@ -147,7 +147,7 @@ public class SwerveModule {
     m_ThrottlePID.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
     m_RotorPID.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
 
-    m_desiredState = desiredState;
+    m_desiredState = iDesiredState;
   }
 
   /** Zeroes all the SwerveModule encoders. */

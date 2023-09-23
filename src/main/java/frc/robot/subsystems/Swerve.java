@@ -141,22 +141,22 @@ public class Swerve extends SubsystemBase {
   /**
    * Method to drive the robot using joystick info.
    *
-   * @param xSpeed        Speed of the robot in the x direction (forward).
-   * @param ySpeed        Speed of the robot in the y direction (sideways).
-   * @param rot           Angular rate of the robot.
-   * @param fieldRelative Whether the provided x and y speeds are relative to the
+   * @param ixSpeed        Speed of the robot in the x direction (forward).
+   * @param iySpeed        Speed of the robot in the y direction (sideways).
+   * @param iRot           Angular rate of the robot.
+   * @param iFieldRelative Whether the provided x and y speeds are relative to the
    *                      field.
-   * @param rateLimit     Whether to enable rate limiting for smoother control.
+   * @param iRateLimit     Whether to enable rate limiting for smoother control.
    */
-  public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean rateLimit) {
+  public void drive(double ixSpeed, double iySpeed, double iRot, boolean iFieldRelative, boolean iRateLimit) {
     
-    double xSpeedCommanded;
-    double ySpeedCommanded;
+    double ixSpeedCommanded;
+    double iySpeedCommanded;
 
-    if (rateLimit) {
+    if (iRateLimit) {
       // Convert XY to polar for rate limiting
-      double inputTranslationDir = Math.atan2(ySpeed, xSpeed);
-      double inputTranslationMag = Math.sqrt(Math.pow(xSpeed, 2) + Math.pow(ySpeed, 2));
+      double inputTranslationDir = Math.atan2(iySpeed, ixSpeed);
+      double inputTranslationMag = Math.sqrt(Math.pow(ixSpeed, 2) + Math.pow(iySpeed, 2));
 
       // Calculate the direction slew rate based on an estimate of the lateral acceleration
       double directionSlewRate;
@@ -190,26 +190,26 @@ public class Swerve extends SubsystemBase {
       }
       m_prevTime = currentTime;
       
-      xSpeedCommanded = m_currentTranslationMag * Math.cos(m_currentTranslationDir);
-      ySpeedCommanded = m_currentTranslationMag * Math.sin(m_currentTranslationDir);
-      m_currentRotation = m_rotLimiter.calculate(rot);
+      ixSpeedCommanded = m_currentTranslationMag * Math.cos(m_currentTranslationDir);
+      iySpeedCommanded = m_currentTranslationMag * Math.sin(m_currentTranslationDir);
+      m_currentRotation = m_rotLimiter.calculate(iRot);
 
 
     } else {
-      xSpeedCommanded = xSpeed;
-      ySpeedCommanded = ySpeed;
-      m_currentRotation = rot;
+      ixSpeedCommanded = ixSpeed;
+      iySpeedCommanded = iySpeed;
+      m_currentRotation = iRot;
     }
 
     // Convert the commanded speeds into the correct units for the drivetrain
-    double xSpeedDelivered = xSpeedCommanded * DriveConstants.kMaxSpeedMetersPerSecond;
-    double ySpeedDelivered = ySpeedCommanded * DriveConstants.kMaxSpeedMetersPerSecond;
-    double rotDelivered = m_currentRotation * DriveConstants.kMaxAngularSpeed;
+    double ixSpeedDelivered = ixSpeedCommanded * DriveConstants.kMaxSpeedMetersPerSecond;
+    double iySpeedDelivered = iySpeedCommanded * DriveConstants.kMaxSpeedMetersPerSecond;
+    double iRotDelivered = m_currentRotation * DriveConstants.kMaxAngularSpeed;
 
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
-        fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, Rotation2d.fromDegrees(m_Imu.getYaw()))
-            : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
+        iFieldRelative
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(ixSpeedDelivered, iySpeedDelivered, iRotDelivered, Rotation2d.fromDegrees(m_Imu.getYaw()))
+            : new ChassisSpeeds(ixSpeedDelivered, iySpeedDelivered, iRotDelivered));
     SwerveDriveKinematics.desaturateWheelSpeeds(
         swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
     m_LeftFront.setDesiredState(swerveModuleStates[0]);
@@ -233,13 +233,13 @@ public class Swerve extends SubsystemBase {
    *
    * @param desiredStates The desired SwerveModule states.
    */
-  public void setModuleStates(SwerveModuleState[] desiredStates) {
+  public void setModuleStates(SwerveModuleState[] iDesiredState) {
     SwerveDriveKinematics.desaturateWheelSpeeds(
-        desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
-    m_LeftFront.setDesiredState(desiredStates[0]);
-    m_RightFront.setDesiredState(desiredStates[1]);
-    m_LeftBack.setDesiredState(desiredStates[2]);
-    m_RightBack.setDesiredState(desiredStates[3]);
+      iDesiredState, DriveConstants.kMaxSpeedMetersPerSecond);
+    m_LeftFront.setDesiredState(iDesiredState[0]);
+    m_RightFront.setDesiredState(iDesiredState[1]);
+    m_LeftBack.setDesiredState(iDesiredState[2]);
+    m_RightBack.setDesiredState(iDesiredState[3]);
   }
 
   /** Resets the drive encoders to currently read a position of 0. */
