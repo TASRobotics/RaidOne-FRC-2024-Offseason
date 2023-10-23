@@ -7,8 +7,25 @@ package frc.robot;
 import frc.robot.commands.Autos; 
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.Swerve;
+
+import java.util.List;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.PS4Controller.Button;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -19,15 +36,25 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  private final Swerve m_swerve = new Swerve();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController = new CommandXboxController(0);
+  private final XboxController master = new XboxController(0);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+    
+    m_swerve.setDefaultCommand(
+      new RunCommand(() -> m_swerve.drive(
+        -MathUtil.applyDeadband(master.getLeftY(), Constants.TeleOp.kDriveDeadband),
+        -MathUtil.applyDeadband(master.getLeftX(), Constants.TeleOp.kDriveDeadband),
+        -MathUtil.applyDeadband(master.getRightX(), Constants.TeleOp.kDriveDeadband),
+        true, true),
+        m_swerve
+      )
+    );
   }
 
   /**
@@ -40,13 +67,11 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
-
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    new JoystickButton(master, Button.kR1.value)
+      .whileTrue(new RunCommand(
+        () -> m_swerve.setX(),
+        m_swerve
+      ));
   }
 
   /**
@@ -55,7 +80,47 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    // Configure trajectory
+    TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+      Constants.AutoConstants.kMaxSpeedMetersPerSecond,
+      Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
+      // Add kinematics to ensure max speed is actually obeyed
+      .setKinematics(Constants.DriveConstants.kDriveKinematics);
+
+      // Trajectory to follow, all units in meters
+      Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+        // Start at the origin facing the +X direction
+        new Pose2d(0, 0, new Rotation2d(0)),
+        // Pass through these two interior waypoints, making an 's' curve path
+        List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
+        // End 3 meters straight ahead of where we started, facing forward
+        new Pose2d(3, 0, new Rotation2d(0)),
+        trajectoryConfig
+      );
+
+      var thetaController = new ProfiledPIDController(
+        Constants.AutoConstants.kPThetaController, 0, 0, Constants.AutoConstants.kThetaControllerConstraints
+      );
+
+      thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+      SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
+        trajectory,
+        m_swerve::getPose, // Functional interface to feed supplier
+        Constants.DriveConstants.kDriveKinematics,
+
+        // Position controllers
+        new PIDController(Constants.AutoConstants.kPXController, 0, 0),
+        new PIDController(Constants.AutoConstants.kPYController, 0, 0),
+        thetaController,
+        m_swerve::setModuleStates,
+        m_swerve
+      );
+
+      // Reset odometry to the starting pose of the trajectory.
+      m_swerve.resetOdometry(trajectory.getInitialPose());
+
+      // Run path following command, then stop at the end.
+      return swerveControllerCommand.andThen(() -> m_swerve.drive(0, 0, 0, false, false));
   }
 }
