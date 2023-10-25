@@ -4,14 +4,15 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.Swerve;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 public final class Autos {
   /** Example static factory for an autonomous command. */
-  public static CommandBase exampleAuto(ExampleSubsystem subsystem) {
-    return Commands.sequence(subsystem.exampleMethodCommand(), new ExampleCommand(subsystem));
+  public static CommandBase exampleAuto(Swerve swerve, Trajectory trajectory) {
+    return Commands.sequence(swerve.exampleMethodCommand(swerve, trajectory)/*, new ExampleCommand(swerve)*/);
   }
 
   private Autos() {

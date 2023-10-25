@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import com.pathplanner.lib.PathPlanner;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -80,47 +81,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // Configure trajectory
-    TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-      Constants.AutoConstants.kMaxSpeedMetersPerSecond,
-      Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-      // Add kinematics to ensure max speed is actually obeyed
-      .setKinematics(Constants.DriveConstants.kDriveKinematics);
-
-      // Trajectory to follow, all units in meters
-      Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
-        // Start at the origin facing the +X direction
-        new Pose2d(0, 0, new Rotation2d(0)),
-        // Pass through these two interior waypoints, making an 's' curve path
-        List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
-        // End 3 meters straight ahead of where we started, facing forward
-        new Pose2d(3, 0, new Rotation2d(0)),
-        trajectoryConfig
-      );
-
-      var thetaController = new ProfiledPIDController(
-        Constants.AutoConstants.kPThetaController, 0, 0, Constants.AutoConstants.kThetaControllerConstraints
-      );
-
-      thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-      SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
-        trajectory,
-        m_swerve::getPose, // Functional interface to feed supplier
-        Constants.DriveConstants.kDriveKinematics,
-
-        // Position controllers
-        new PIDController(Constants.AutoConstants.kPXController, 0, 0),
-        new PIDController(Constants.AutoConstants.kPYController, 0, 0),
-        thetaController,
-        m_swerve::setModuleStates,
-        m_swerve
-      );
-
-      // Reset odometry to the starting pose of the trajectory.
-      m_swerve.resetOdometry(trajectory.getInitialPose());
-
-      // Run path following command, then stop at the end.
-      return swerveControllerCommand.andThen(() -> m_swerve.drive(0, 0, 0, false, false));
+    Trajectory path1 = PathPlanner.loadPath("TestPath1", 1.5, 1.5);
+    return Autos.exampleAuto(m_swerve, path1);
   }
 }

@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.PigeonIMU;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,9 +16,12 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.utils.SwerveUtils;
@@ -79,12 +84,42 @@ public class Swerve extends SubsystemBase {
    *
    * @return a command
    */
-  public CommandBase exampleMethodCommand() {
+  public CommandBase exampleMethodCommand(Swerve swerve, Trajectory trajectory) {
     // Inline construction of command goes here.
     // Subsystem::RunOnce implicitly requires `this` subsystem.
     return runOnce(
         () -> {
-          /* one-time action goes here */
+          // Configure trajectory
+          TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+          Constants.AutoConstants.kMaxSpeedMetersPerSecond,
+          Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
+            // Add kinematics to ensure max speed is actually obeyed
+            .setKinematics(Constants.DriveConstants.kDriveKinematics);
+
+          var thetaController = new ProfiledPIDController(
+            Constants.AutoConstants.kPThetaController, 0, 0, Constants.AutoConstants.kThetaControllerConstraints
+          );
+
+          thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+          SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
+            trajectory,
+            swerve::getPose, // Functional interface to feed supplier
+            Constants.DriveConstants.kDriveKinematics,
+
+            // Position controllers
+            new PIDController(Constants.AutoConstants.kPXController, 0, 0),
+            new PIDController(Constants.AutoConstants.kPYController, 0, 0),
+            thetaController,
+            swerve::setModuleStates,
+            swerve
+          );
+
+          // Reset odometry to the starting pose of the trajectory.
+          swerve.resetOdometry(trajectory.getInitialPose());
+
+          // Run path following command, then stop at the end.
+          swerveControllerCommand.andThen(() -> swerve.drive(0, 0, 0, false, false));
         });
   }
 
