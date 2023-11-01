@@ -125,7 +125,7 @@ public class SwerveModule {
   public SwerveModulePosition getPosition() {
     // Apply chassis angular offset to the encoder position to get the position
     // relative to the chassis.
-    return new SwerveModulePosition( m_ThrottleEncoder.getPosition(), new Rotation2d(m_RotorEncoder.getPosition() - m_RotorOffsetAngle));
+    return new SwerveModulePosition(m_ThrottleEncoder.getPosition(), new Rotation2d(m_RotorEncoder.getPosition() - m_RotorOffsetAngle));
   }
 
   /**

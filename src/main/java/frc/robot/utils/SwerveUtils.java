@@ -40,7 +40,7 @@ public class SwerveUtils {
         }
         else if (difference > Math.PI) { //does the system need to wrap over eventually?
             //handle the special case where you can reach the target in one step while also wrapping
-            if (iCurrent + 2*Math.PI - iTarget < iStepsize || iTarget + 2*Math.PI - iCurrent < iStepsize) {
+            if (iCurrent + 2 * Math.PI - iTarget < iStepsize || iTarget + 2 * Math.PI - iCurrent < iStepsize) {
                 return iTarget;
             }
             else {
@@ -61,7 +61,7 @@ public class SwerveUtils {
      */
     public static double AngleDifference(double iAngleA, double iAngleB) {
         double difference = Math.abs(iAngleA - iAngleB);
-        return difference > Math.PI? (2 * Math.PI) - difference : difference;
+        return difference > Math.PI ? (2 * Math.PI) - difference : difference;
     }
 
     /**
@@ -70,16 +70,16 @@ public class SwerveUtils {
      * @return An angle (in radians) from 0 and 2*PI (exclusive).
      */
     public static double WrapAngle(double iAngle) {
-        double twoPi = 2*Math.PI;
+        double twoPi = 2 * Math.PI;
 
         if (iAngle == twoPi) { // Handle this case separately to avoid floating point errors with the floor after the division in the case below
             return 0.0;
         }
         else if (iAngle > twoPi) {
-            return iAngle - twoPi*Math.floor(iAngle / twoPi);
+            return iAngle - twoPi * Math.floor(iAngle / twoPi);
         }
         else if (iAngle < 0.0) {
-            return iAngle + twoPi*(Math.floor((-iAngle) / twoPi)+1);
+            return iAngle + twoPi * (Math.floor((-iAngle) / twoPi) + 1);
         }
         else {
             return iAngle;

@@ -29,28 +29,32 @@ import frc.robot.utils.SwerveUtils;
 public class Swerve extends SubsystemBase {
   // Create SwerveModules
   private final SwerveModule m_LeftFront = new SwerveModule(
-      Constants.DriveConstants.kLeftFrontThrottleID,
-      Constants.DriveConstants.kLeftFrontRotorID,
-      Constants.DriveConstants.kLeftFrontThrottleReversed,
-      Constants.DriveConstants.kLeftFrontRotorOffsetngle);
+    Constants.DriveConstants.kLeftFrontThrottleID,
+    Constants.DriveConstants.kLeftFrontRotorID,
+    Constants.DriveConstants.kLeftFrontThrottleReversed,
+    Constants.DriveConstants.kLeftFrontRotorOffsetngle
+  );
       
   private final SwerveModule m_LeftBack = new SwerveModule(
     Constants.DriveConstants.kLeftBackThrottleID,
     Constants.DriveConstants.kLeftBackRotorID,
     Constants.DriveConstants.kLeftFrontThrottleReversed,
-      Constants.DriveConstants.kLeftBackRotorOffsetngle);
+    Constants.DriveConstants.kLeftBackRotorOffsetngle
+  );
       
   private final SwerveModule m_RightFront = new SwerveModule(
-      Constants.DriveConstants.kRightFrontThrottleID,
-      Constants.DriveConstants.kRightFrontRotorID,
-      Constants.DriveConstants.kRightFrontThrottleReversed,
-      Constants.DriveConstants.kRightFrontRotorOffsetngle);
+    Constants.DriveConstants.kRightFrontThrottleID,
+    Constants.DriveConstants.kRightFrontRotorID,
+    Constants.DriveConstants.kRightFrontThrottleReversed,
+    Constants.DriveConstants.kRightFrontRotorOffsetngle
+  );
 
   private final SwerveModule m_RightBack = new SwerveModule(
-      Constants.DriveConstants.kRightBackThrottleID,
-      Constants.DriveConstants.kRightBackRotorID,
-      Constants.DriveConstants.kLeftFrontThrottleReversed,
-      Constants.DriveConstants.kRightBackRotorOffsetngle);
+    Constants.DriveConstants.kRightBackThrottleID,
+    Constants.DriveConstants.kRightBackRotorID,
+    Constants.DriveConstants.kLeftFrontThrottleReversed,
+    Constants.DriveConstants.kRightBackRotorOffsetngle
+  );
 
   // Pigeon
   private final PigeonIMU m_Imu = new PigeonIMU(Constants.DriveConstants.kImuID);
@@ -66,14 +70,15 @@ public class Swerve extends SubsystemBase {
 
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
-      DriveConstants.kDriveKinematics,
-      Rotation2d.fromDegrees(m_Imu.getYaw()),
-      new SwerveModulePosition[] {
-        m_LeftFront.getPosition(),
-        m_RightFront.getPosition(),
-        m_LeftBack.getPosition(),
-        m_RightBack.getPosition()
-      });
+    DriveConstants.kDriveKinematics,
+    Rotation2d.fromDegrees(m_Imu.getYaw()),
+    new SwerveModulePosition[] {
+      m_LeftFront.getPosition(),
+      m_RightFront.getPosition(),
+      m_LeftBack.getPosition(),
+      m_RightBack.getPosition()
+    }
+  );
 
   /** Creates a new ExampleSubsystem. */
   public Swerve() {
@@ -88,39 +93,40 @@ public class Swerve extends SubsystemBase {
     // Inline construction of command goes here.
     // Subsystem::RunOnce implicitly requires `this` subsystem.
     return runOnce(
-        () -> {
-          // Configure trajectory
-          TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+      () -> {
+        // Configure trajectory
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
           Constants.AutoConstants.kMaxSpeedMetersPerSecond,
           Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-            // Add kinematics to ensure max speed is actually obeyed
-            .setKinematics(Constants.DriveConstants.kDriveKinematics);
+          // Add kinematics to ensure max speed is actually obeyed
+          .setKinematics(Constants.DriveConstants.kDriveKinematics);
 
-          var thetaController = new ProfiledPIDController(
-            Constants.AutoConstants.kPThetaController, 0, 0, Constants.AutoConstants.kThetaControllerConstraints
-          );
+        var thetaController = new ProfiledPIDController(
+          Constants.AutoConstants.kPThetaController, 0, 0, Constants.AutoConstants.kThetaControllerConstraints
+        );
 
-          thetaController.enableContinuousInput(-Math.PI, Math.PI);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-          SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
-            trajectory,
-            swerve::getPose, // Functional interface to feed supplier
-            Constants.DriveConstants.kDriveKinematics,
+        SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
+          trajectory,
+          swerve::getPose, // Functional interface to feed supplier
+          Constants.DriveConstants.kDriveKinematics,
 
-            // Position controllers
-            new PIDController(Constants.AutoConstants.kPXController, 0, 0),
-            new PIDController(Constants.AutoConstants.kPYController, 0, 0),
-            thetaController,
-            swerve::setModuleStates,
-            swerve
-          );
+          // Position controllers
+          new PIDController(Constants.AutoConstants.kPXController, 0, 0),
+          new PIDController(Constants.AutoConstants.kPYController, 0, 0),
+          thetaController,
+          swerve::setModuleStates,
+          swerve
+        );
 
-          // Reset odometry to the starting pose of the trajectory.
-          swerve.resetOdometry(trajectory.getInitialPose());
+        // Reset odometry to the starting pose of the trajectory.
+        swerve.resetOdometry(trajectory.getInitialPose());
 
-          // Run path following command, then stop at the end.
-          swerveControllerCommand.andThen(() -> swerve.drive(0, 0, 0, false, false));
-        });
+        // Run path following command, then stop at the end.
+        swerveControllerCommand.andThen(() -> swerve.drive(0, 0, 0, false, false));
+      }
+    );
   }
 
   /**
@@ -138,13 +144,14 @@ public class Swerve extends SubsystemBase {
   public void periodic() {
     // Update the odometry in the periodic block
     m_odometry.update(
-        Rotation2d.fromDegrees(m_Imu.getYaw()),
-        new SwerveModulePosition[] {
-          m_LeftFront.getPosition(),
-          m_RightFront.getPosition(),
-          m_LeftBack.getPosition(),
-          m_RightBack.getPosition()
-        });
+      Rotation2d.fromDegrees(m_Imu.getYaw()),
+      new SwerveModulePosition[] {
+        m_LeftFront.getPosition(),
+        m_RightFront.getPosition(),
+        m_LeftBack.getPosition(),
+        m_RightBack.getPosition()
+      }
+    );
   }
 
   /**
@@ -163,14 +170,15 @@ public class Swerve extends SubsystemBase {
    */
   public void resetOdometry(Pose2d pose) {
     m_odometry.resetPosition(
-        Rotation2d.fromDegrees(m_Imu.getYaw()),
-        new SwerveModulePosition[] {
-          m_LeftFront.getPosition(),
-          m_RightFront.getPosition(),
-          m_LeftBack.getPosition(),
-          m_RightBack.getPosition()
-        },
-        pose);
+      Rotation2d.fromDegrees(m_Imu.getYaw()),
+      new SwerveModulePosition[] {
+        m_LeftFront.getPosition(),
+        m_RightFront.getPosition(),
+        m_LeftBack.getPosition(),
+        m_RightBack.getPosition()
+      },
+      pose
+    );
   }
 
   /**
@@ -205,11 +213,11 @@ public class Swerve extends SubsystemBase {
       double currentTime = WPIUtilJNI.now() * 1e-6;
       double elapsedTime = currentTime - m_prevTime;
       double angleDif = SwerveUtils.AngleDifference(inputTranslationDir, m_currentTranslationDir);
-      if (angleDif < 0.45*Math.PI) {
+      if (angleDif < 0.45 * Math.PI) {
         m_currentTranslationDir = SwerveUtils.StepTowardsCircular(m_currentTranslationDir, inputTranslationDir, directionSlewRate * elapsedTime);
         m_currentTranslationMag = m_magLimiter.calculate(inputTranslationMag);
       }
-      else if (angleDif > 0.85*Math.PI) {
+      else if (angleDif > 0.85 * Math.PI) {
         if (m_currentTranslationMag > 1e-4) { //some small number to avoid floating-point errors with equality checking
           // keep currentTranslationDir unchanged
           m_currentTranslationMag = m_magLimiter.calculate(0.0);
@@ -245,8 +253,7 @@ public class Swerve extends SubsystemBase {
         iFieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(ixSpeedDelivered, iySpeedDelivered, iRotDelivered, Rotation2d.fromDegrees(m_Imu.getYaw()))
             : new ChassisSpeeds(ixSpeedDelivered, iySpeedDelivered, iRotDelivered));
-    SwerveDriveKinematics.desaturateWheelSpeeds(
-        swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
+    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
     m_LeftFront.setDesiredState(swerveModuleStates[0]);
     m_RightFront.setDesiredState(swerveModuleStates[1]);
     m_LeftBack.setDesiredState(swerveModuleStates[2]);
@@ -269,8 +276,7 @@ public class Swerve extends SubsystemBase {
    * @param desiredStates The desired SwerveModule states.
    */
   public void setModuleStates(SwerveModuleState[] iDesiredState) {
-    SwerveDriveKinematics.desaturateWheelSpeeds(
-      iDesiredState, DriveConstants.kMaxSpeedMetersPerSecond);
+    SwerveDriveKinematics.desaturateWheelSpeeds(iDesiredState, DriveConstants.kMaxSpeedMetersPerSecond);
     m_LeftFront.setDesiredState(iDesiredState[0]);
     m_RightFront.setDesiredState(iDesiredState[1]);
     m_LeftBack.setDesiredState(iDesiredState[2]);
