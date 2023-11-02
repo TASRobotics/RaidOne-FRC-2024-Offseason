@@ -89,42 +89,12 @@ public class Swerve extends SubsystemBase {
    *
    * @return a command
    */
-  public CommandBase exampleMethodCommand(Swerve swerve, Trajectory trajectory) {
+  public CommandBase exampleMethodCommand(Trajectory iTrajectory) {
     // Inline construction of command goes here.
     // Subsystem::RunOnce implicitly requires `this` subsystem.
     return runOnce(
       () -> {
-        // Configure trajectory
-        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-          Constants.AutoConstants.kMaxSpeedMetersPerSecond,
-          Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-          // Add kinematics to ensure max speed is actually obeyed
-          .setKinematics(Constants.DriveConstants.kDriveKinematics);
-
-        var thetaController = new ProfiledPIDController(
-          Constants.AutoConstants.kPThetaController, 0, 0, Constants.AutoConstants.kThetaControllerConstraints
-        );
-
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-        SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
-          trajectory,
-          swerve::getPose, // Functional interface to feed supplier
-          Constants.DriveConstants.kDriveKinematics,
-
-          // Position controllers
-          new PIDController(Constants.AutoConstants.kPXController, 0, 0),
-          new PIDController(Constants.AutoConstants.kPYController, 0, 0),
-          thetaController,
-          swerve::setModuleStates,
-          swerve
-        );
-
-        // Reset odometry to the starting pose of the trajectory.
-        swerve.resetOdometry(trajectory.getInitialPose());
-
-        // Run path following command, then stop at the end.
-        swerveControllerCommand.andThen(() -> swerve.drive(0, 0, 0, false, false));
+        driveTrajectory(iTrajectory);
       }
     );
   }
@@ -314,5 +284,32 @@ public class Swerve extends SubsystemBase {
   @Override
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
+  }
+
+  public void driveTrajectory(Trajectory iTrajectory) {
+    var thetaController = new ProfiledPIDController(
+      Constants.AutoConstants.kPThetaController, 0, 0, Constants.AutoConstants.kThetaControllerConstraints
+    );
+
+    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+    SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
+      iTrajectory,
+      this::getPose, // Functional interface to feed supplier
+      Constants.DriveConstants.kDriveKinematics,
+
+      // Position controllers
+      new PIDController(Constants.AutoConstants.kPXController, 0, 0),
+      new PIDController(Constants.AutoConstants.kPYController, 0, 0),
+      thetaController,
+      this::setModuleStates,
+      this
+    );
+
+    // Reset odometry to the starting pose of the trajectory.
+    this.resetOdometry(iTrajectory.getInitialPose());
+
+    // Run path following command, then stop at the end.
+    swerveControllerCommand.andThen(() -> this.drive(0, 0, 0, false, false));
   }
 }
