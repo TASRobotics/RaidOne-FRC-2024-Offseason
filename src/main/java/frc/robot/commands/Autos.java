@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 public final class Autos {
   /** Example static factory for an autonomous command. */
   public static CommandBase exampleAuto(Swerve swerve, Trajectory trajectory) {
-    return Commands.sequence(swerve.exampleMethodCommand(swerve, trajectory)/*, new ExampleCommand(swerve)*/);
+    return Commands.sequence(swerve.exampleMethodCommand(trajectory)/*, new ExampleCommand(swerve)*/);
   }
 
   private Autos() {
