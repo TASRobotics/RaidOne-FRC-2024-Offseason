@@ -37,7 +37,7 @@ import com.pathplanner.lib.PathPlanner;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final Swerve m_swerve = new Swerve();
+  private final Swerve swerve = new Swerve();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final XboxController master = new XboxController(0);
@@ -47,13 +47,13 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
     
-    m_swerve.setDefaultCommand(
-      new RunCommand(() -> m_swerve.drive(
+    swerve.setDefaultCommand(
+      new RunCommand(() -> swerve.drive(
         -MathUtil.applyDeadband(master.getLeftY(), Constants.TeleOp.kDriveDeadband),
         -MathUtil.applyDeadband(master.getLeftX(), Constants.TeleOp.kDriveDeadband),
         -MathUtil.applyDeadband(master.getRightX(), Constants.TeleOp.kDriveDeadband),
         true, true),
-        m_swerve
+        swerve
       )
     );
   }
@@ -71,7 +71,7 @@ public class RobotContainer {
     new JoystickButton(master, Button.kR1.value)
       .whileTrue(new RunCommand(
         () -> m_swerve.setX(),
-        m_swerve
+        swerve
       ));
   }
 
