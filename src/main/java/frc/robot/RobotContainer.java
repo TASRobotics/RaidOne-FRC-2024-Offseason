@@ -10,6 +10,7 @@ import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Swerve;
 
 import java.util.List;
+import frc.robot.utils.AutoChooser;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -37,7 +38,7 @@ import com.pathplanner.lib.PathPlanner;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final Swerve swerve = new Swerve();
+  private static final Swerve swerve = new Swerve();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final XboxController master = new XboxController(0);
@@ -81,7 +82,11 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    Trajectory path1 = PathPlanner.loadPath("TestPath1", 1.5, 1.5);
-    return Autos.exampleAuto(m_swerve, path1);
+    AutoChooser chooser = new AutoChooser();
+    return chooser.getSelectedCommand();
+  }
+
+  public static Swerve getSwerve() {
+    return swerve;
   }
 }
