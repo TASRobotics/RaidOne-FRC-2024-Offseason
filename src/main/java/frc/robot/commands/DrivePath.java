@@ -57,7 +57,7 @@ public class DrivePath extends CommandBase {
         }
     }
 
-    public void driveTrajectory(Swerve iSwerve, Trajectory iTrajectory) {
+    private void driveTrajectory(Swerve iSwerve, Trajectory iTrajectory) {
         var thetaController = new ProfiledPIDController(
             Constants.AutoConstants.kPThetaController, 0, 0, Constants.AutoConstants.kThetaControllerConstraints
         );
@@ -82,6 +82,6 @@ public class DrivePath extends CommandBase {
 
         // Run path following command, then stop at the end.
         swerveControllerCommand.andThen(() -> iSwerve.drive(0, 0, 0, false, false));
-        }
+    }
     
 }

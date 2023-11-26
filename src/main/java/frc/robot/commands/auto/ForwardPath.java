@@ -18,7 +18,7 @@ public class ForwardPath extends CommandBase {
     @Override
     public void initialize() {
         SequentialCommandGroup command = new SequentialCommandGroup(
-            new DrivePath(RobotContainer.getSwerve(), path1)
+            new DrivePath(RobotContainer.getSwerve(), path1, true)
         );
 
         command.schedule();
