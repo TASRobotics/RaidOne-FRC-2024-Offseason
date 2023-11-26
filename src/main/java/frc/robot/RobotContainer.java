@@ -22,56 +22,56 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
-  private static final Swerve swerve = new Swerve();
+	// The robot's subsystems and commands are defined here...
+	private static final Swerve swerve = new Swerve();
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final XboxController master = new XboxController(0);
+	// Replace with CommandPS4Controller or CommandJoystick if needed
+	private final XboxController master = new XboxController(0);
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
-    // Configure the trigger bindings
-    configureBindings();
-    
-    swerve.setDefaultCommand(
-      new RunCommand(() -> swerve.drive(
-        -MathUtil.applyDeadband(master.getLeftY(), Constants.TeleOp.kDriveDeadband),
-        -MathUtil.applyDeadband(master.getLeftX(), Constants.TeleOp.kDriveDeadband),
-        -MathUtil.applyDeadband(master.getRightX(), Constants.TeleOp.kDriveDeadband),
-        true, true),
-        swerve
-      )
-    );
-  }
+	/** The container for the robot. Contains subsystems, OI devices, and commands. */
+	public RobotContainer() {
+		// Configure the trigger bindings
+		configureBindings();
 
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
-   * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-   * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
-   */
-  private void configureBindings() {
-    new JoystickButton(master, Button.kR1.value)
-      .whileTrue(new RunCommand(
-        () -> swerve.setX(),
-        swerve
-      ));
-  }
+		swerve.setDefaultCommand(
+			new RunCommand(() -> swerve.drive(
+				-MathUtil.applyDeadband(master.getLeftY(), Constants.TeleOp.kDriveDeadband),
+				-MathUtil.applyDeadband(master.getLeftX(), Constants.TeleOp.kDriveDeadband),
+				-MathUtil.applyDeadband(master.getRightX(), Constants.TeleOp.kDriveDeadband),
+				true, true),
+				swerve
+			)
+		);
+	}
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    AutoChooser chooser = new AutoChooser();
-    return chooser.getSelectedCommand();
-  }
+	/**
+	 * Use this method to define your trigger->command mappings. Triggers can be created via the
+	 * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
+	 * predicate, or via the named factories in {@link
+	 * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
+	 * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
+	 * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
+	 * joysticks}.
+	 */
+	private void configureBindings() {
+		new JoystickButton(master, Button.kR1.value)
+			.whileTrue(new RunCommand(
+				() -> swerve.setX(),
+				swerve
+			));
+	}
 
-  public static Swerve getSwerve() {
-    return swerve;
-  }
+	/**
+	 * Use this to pass the autonomous command to the main {@link Robot} class.
+	 *
+	 * @return the command to run in autonomous
+	 */
+	public Command getAutonomousCommand() {
+		AutoChooser chooser = new AutoChooser();
+		return chooser.getSelectedCommand();
+	}
+
+	public static Swerve getSwerve() {
+		return swerve;
+	}
 }

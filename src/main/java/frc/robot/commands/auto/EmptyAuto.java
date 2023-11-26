@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class EmptyAuto extends CommandBase {
 
-    public EmptyAuto() {};
+    public EmptyAuto() {}
 
     @Override
     public void initialize() {}

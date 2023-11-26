@@ -1,6 +1,7 @@
 package frc.robot.utils;
 
 public class SwerveUtils {
+
     /**
      * Steps a value towards a target with a specified step size.
      * @param iCurrent The current or starting value.  Can be positive or negative.
@@ -85,4 +86,5 @@ public class SwerveUtils {
             return iAngle;
         }
     }
+    
 }
