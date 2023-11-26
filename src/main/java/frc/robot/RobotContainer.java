@@ -70,7 +70,7 @@ public class RobotContainer {
   private void configureBindings() {
     new JoystickButton(master, Button.kR1.value)
       .whileTrue(new RunCommand(
-        () -> m_swerve.setX(),
+        () -> swerve.setX(),
         swerve
       ));
   }
