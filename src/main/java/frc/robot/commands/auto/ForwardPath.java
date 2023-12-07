@@ -32,7 +32,7 @@ public class ForwardPath extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return true;
+        return false;
     }
 
 }

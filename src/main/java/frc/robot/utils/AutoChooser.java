@@ -12,7 +12,8 @@ public class AutoChooser {
 
     // List of commands for autonomous
     private CommandBase[] commands = {
-        new EmptyAuto()
+        new EmptyAuto(),
+        new ForwardPath(),
     };
 
     /**
