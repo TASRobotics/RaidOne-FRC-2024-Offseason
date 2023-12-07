@@ -5,7 +5,6 @@
 package frc.robot;
 
 import frc.robot.subsystems.Swerve;
-import frc.robot.utils.AutoChooser;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
@@ -67,8 +66,7 @@ public class RobotContainer {
 	 * @return the command to run in autonomous
 	 */
 	public Command getAutonomousCommand() {
-		AutoChooser chooser = new AutoChooser();
-		return chooser.getSelectedCommand();
+		return Robot.getChooser().getSelectedCommand();
 	}
 
 	public static Swerve getSwerve() {
