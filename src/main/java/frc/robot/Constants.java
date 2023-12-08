@@ -91,26 +91,26 @@ public final class Constants {
 			new Translation2d(-kWheelBase / 2, -kTrackWidth / 2)
 		);
 
-		public static final int kLeftFrontRotorID = 1;
-		public static final int kLeftFrontThrottleID = 2;
+		public static final int kLeftFrontRotorID = 2;
+		public static final int kLeftFrontThrottleID = 1;
 		public static final boolean kLeftFrontThrottleReversed = false;
 		public static final double kLeftFrontRotorOffsetngle = -Math.PI / 2;
 
-		public static final int kLeftBackRotorID = 3;
-		public static final int kLeftBackThrottleID = 4;
+		public static final int kLeftBackRotorID = 6;
+		public static final int kLeftBackThrottleID = 5;
 		public static final boolean kLeftBackThrottleReversed = false;
 		public static final double kLeftBackRotorOffsetngle = Math.PI;
 
-		public static final int kRightFrontRotorID = 5;
-		public static final int kRightFrontThrottleID = 6;
+		public static final int kRightFrontRotorID = 4;
+		public static final int kRightFrontThrottleID = 3;
 		public static final boolean kRightFrontThrottleReversed = false;
 		public static final double kRightFrontRotorOffsetngle = 0.0;
 
-		public static final int kRightBackRotorID = 7;
-		public static final int kRightBackThrottleID = 8;
+		public static final int kRightBackRotorID = 8;
+		public static final int kRightBackThrottleID = 7;
 		public static final boolean kRightBackThrottleReversed = false;
 		public static final double kRightBackRotorOffsetngle = Math.PI / 2;	
-		public static final int kImuID = 9;	
+		public static final int kImuID = 10;	
 		public static final boolean kImuReversed = false;
 	}
 
