@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.REVPhysicsSim;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -10,6 +11,8 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.Constants;
 
 public class SwerveModule {
@@ -103,6 +106,11 @@ public class SwerveModule {
 		m_Rotor.burnFlash();
 		m_desiredState.angle = new Rotation2d(m_RotorEncoder.getPosition());
 		m_ThrottleEncoder.setPosition(0);
+
+		if (RobotBase.isSimulation()) {
+			REVPhysicsSim.getInstance().addSparkMax(m_Rotor, DCMotor.getNEO(1));
+			REVPhysicsSim.getInstance().addSparkMax(m_Throttle, DCMotor.getNEO(1));
+		}
 	}
 
 	/**
