@@ -2,13 +2,10 @@ package frc.robot.subsystems;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
-import com.revrobotics.AlternateEncoderType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxAlternateEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -26,7 +23,6 @@ public class SwerveModule {
  	private SparkMaxPIDController m_RotorPID;
  	private SparkMaxPIDController m_ThrottlePID;
 
- 	private double m_RotorOffsetAngle = 0;
  	private SwerveModuleState m_desiredState = new SwerveModuleState(0.0, new Rotation2d());
 
 	/**
@@ -37,7 +33,7 @@ public class SwerveModule {
 	 */
 	public SwerveModule(int iRotorID, int iThrottleID, boolean iThrottleReversed, double iRotorOffsetAngle) {
 		m_Throttle = new CANSparkMax(iThrottleID, MotorType.kBrushless);
-		m_Rotor = new CANSparkMax(iRotorID, MotorType.kBrushless);	
+		m_Rotor = new CANSparkMax(iRotorID, MotorType.kBrushless);
 
 		// Factory reset, so we get the SPARKS MAX to a known state before configuring
 		// them. This is useful in case a SPARK MAX is swapped out.
@@ -51,6 +47,9 @@ public class SwerveModule {
 		m_RotorPID = m_Rotor.getPIDController();
 		m_ThrottlePID.setFeedbackDevice(m_ThrottleEncoder);
 		m_RotorPID.setFeedbackDevice(m_RotorEncoder);
+
+		// Apply rotor encoder offset angle
+		m_RotorEncoder.setZeroOffset(iRotorOffsetAngle);
 
 		// Apply position and velocity conversion factors for the driving encoder. The
 		// native units for position and velocity are rotations and RPM, respectively,
@@ -101,8 +100,7 @@ public class SwerveModule {
 		// Save the SPARK MAX configurations. If a SPARK MAX browns out during
 		// operation, it will maintain the above configurations.
 		m_Throttle.burnFlash();
-		m_Rotor.burnFlash();	
-		m_RotorOffsetAngle = iRotorOffsetAngle;
+		m_Rotor.burnFlash();
 		m_desiredState.angle = new Rotation2d(m_RotorEncoder.getPosition());
 		m_ThrottleEncoder.setPosition(0);
 	}
@@ -115,7 +113,7 @@ public class SwerveModule {
 	public SwerveModuleState getState() {
 		// Apply chassis angular offset to the encoder position to get the position
 		// relative to the chassis.
-		return new SwerveModuleState(m_ThrottleEncoder.getVelocity(), new Rotation2d(m_RotorEncoder.getPosition() - m_RotorOffsetAngle));
+		return new SwerveModuleState(m_ThrottleEncoder.getVelocity(), new Rotation2d(m_RotorEncoder.getPosition()));
 	}
 
 	/**
@@ -126,7 +124,7 @@ public class SwerveModule {
 	public SwerveModulePosition getPosition() {
 		// Apply chassis angular offset to the encoder position to get the position
 		// relative to the chassis.
-		return new SwerveModulePosition(m_ThrottleEncoder.getPosition(), new Rotation2d(m_RotorEncoder.getPosition() - m_RotorOffsetAngle));
+		return new SwerveModulePosition(m_ThrottleEncoder.getPosition(), new Rotation2d(m_RotorEncoder.getPosition()));
 	}
 
 	/**
@@ -138,7 +136,6 @@ public class SwerveModule {
 		// Apply chassis angular offset to the desired state.
 		SwerveModuleState correctedDesiredState = new SwerveModuleState();
 		correctedDesiredState.speedMetersPerSecond = iDesiredState.speedMetersPerSecond;
-		correctedDesiredState.angle = iDesiredState.angle.plus(Rotation2d.fromRadians(m_RotorOffsetAngle));	
 		
 		// Optimize the reference state to avoid spinning further than 90 degrees.
 		SwerveModuleState optimizedDesiredState = SwerveModuleState.optimize(correctedDesiredState,
@@ -146,7 +143,7 @@ public class SwerveModule {
 
 		// Command driving and turning SPARKS MAX towards their respective setpoints.
 		m_ThrottlePID.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
-		m_RotorPID.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);	
+		m_RotorPID.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
 		m_desiredState = iDesiredState;
 	}
 
