@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.AlternateEncoderType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -19,7 +20,7 @@ public class SwerveModule {
 	private CANSparkMax m_Rotor;
 	private CANSparkMax m_Throttle;
 
-	private RelativeEncoder m_RotorEncoder;
+	private AbsoluteEncoder m_RotorEncoder;
 	private RelativeEncoder m_ThrottleEncoder;
 
  	private SparkMaxPIDController m_RotorPID;
@@ -45,7 +46,7 @@ public class SwerveModule {
 
 		// Setup encoders and PID controllers for the driving and turning SPARKS MAX.
 		m_ThrottleEncoder = m_Throttle.getEncoder();
-		m_RotorEncoder = m_Rotor.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature, 8192);
+		m_RotorEncoder = m_Rotor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
 		m_ThrottlePID = m_Throttle.getPIDController();
 		m_RotorPID = m_Rotor.getPIDController();
 		m_ThrottlePID.setFeedbackDevice(m_ThrottleEncoder);
